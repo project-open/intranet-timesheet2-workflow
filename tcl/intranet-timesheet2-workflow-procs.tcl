@@ -30,7 +30,7 @@ ad_proc -public im_timesheet_workflow_spawn_update_workflow {
     -user_id:required
     -start_date:required
     -end_date:required
-    {-workflow_key "timesheet_approval_workflow_wf" }
+    {-workflow_key "" }
 } {
     Check if there is already a WF running for that project/user/date
     and either reset this WF or create a new one if there wasn't one before.
@@ -63,15 +63,20 @@ ad_proc -public im_timesheet_workflow_spawn_update_workflow {
     # ---------------------------------------------------------------
     # Create a new Timesheet Confirmation Object if not there
 
-	    set conf_object_id [im_timesheet_conf_object_new \
-		  -project_id $project_id \
-		  -user_id $wf_user_id \
-		  -start_date $start_date \
-		  -end_date $end_date \
-            ]
+    set conf_type_id [im_timesheet_conf_obj_type_default]
+    set conf_status_id [im_timesheet_conf_obj_status_active]
 
-	    # Mark all hours in the included conf_obj as included
-	    db_dml update_hours "
+    set conf_object_id [im_timesheet_conf_object_new \
+			    -project_id $project_id \
+			    -user_id $wf_user_id \
+			    -start_date $start_date \
+			    -end_date $end_date \
+			    -conf_type_id $conf_type_id \
+			    -conf_status_id $conf_status_id \
+    ]
+
+    # Mark all hours in the included conf_obj as included
+    db_dml update_hours "
 		update	im_hours
 		set	conf_object_id = :conf_object_id
 		from	(
@@ -91,31 +96,25 @@ ad_proc -public im_timesheet_workflow_spawn_update_workflow {
 			im_hours.day = h.day and
 			im_hours.user_id = h.user_id and
 			im_hours.project_id = h.project_id
-	    "
+    "
 
-
-set ttt {
-    switch [llength $conf_object_ids] {
-	0 {	   
-	    append result_html "<li>No previous confirmation object found - Creating new confirmation object.\n"
-	}
-	1 {
-	    set conf_object_id [lindex $conf_object_ids 0]
-	    append result_html "<li>Confirmation object already exists: #$conf_object_id\n"
-	}
-	default {
-	    ad_return_complaint 1 "<b>Internal Error: Too many confirmation objects</b>:
-	    	We have found more the one confirmation object ($conf_object_ids)
-		for the given project_id=$project_id, user_id=$user_id and start_date=$start_date.
-		Please inform your System Administrator.
-	    "
-	    ad_script_abort
-	}
-    }
-}
 
     # ---------------------------------------------------------------
-    # Check if the WF-Key is valid
+    # Determine workflow key from im_category.aux_string1 and
+    # check if the WF-Key is valid.
+
+    if {"" == $workflow_key} {
+	set workflow_key [db_string conf_object_wf_key "
+		select	aux_string1
+		from	im_categories
+		where	category_id = :conf_type_id
+        "]
+    }
+
+    if {"" == $workflow_key} {
+	# Fallback to factory provided default approval WF
+	set workflow_key "timesheet_approval_wf"
+    }
 
     set wf_valid_p [db_string wf_valid_check "
 	select count(*)

@@ -90,7 +90,6 @@ foreach project_id $project_list {
 	-user_id $wf_user_id \
 	-start_date $start_date \
 	-end_date $end_date \
-	-workflow_key "timesheet_approval_wf" \
     ]
     append li_html "<ul>\n$debug_html\n</ul>\n"
 
