@@ -93,13 +93,7 @@ set object_name [db_string name "select acs_object__name(:absence_id)"]
 # Get the included hours
 # ---------------------------------------------------------------
 
-set params [list \
-		[list absence_id $absence_id] \
-		[list return_url $return_url] \
-		[list enable_master_p 0] \
-		[list form_mode display] \
-		[list panel_p 1] \
-]
+set params [list [list absence_id $absence_id] [list return_url $return_url] [list enable_master_p 0] [list form_mode display] [list panel_p 1] ]
 set html [ad_parse_template -params $params "/packages/intranet-timesheet2/www/absences/new"]
 
 
