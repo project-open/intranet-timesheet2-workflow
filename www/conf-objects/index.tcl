@@ -100,6 +100,9 @@ template::list::create \
 	    label "[_ intranet-timesheet2-workflow.Conf_User]"
 	    link_url_eval "/intranet/users/view?user_id=$conf_user_id"
 	}
+        conf_status {
+	    label "[lang::message::lookup {} intranet-timesheet2-workflow.Conf_Status Status]"
+	}
     }
 
 
@@ -109,11 +112,11 @@ if {[im_permission $user_id "view_timesheet_conf_all"]} { set owner_where ""}
 db_multirow -extend {conf_chk return_url period} conf_lines confs_lines "
 	select	co.*,
 		p.project_name,
-		im_name_from_user_id(co.conf_user_id) as conf_user_name
+		im_name_from_user_id(co.conf_user_id) as conf_user_name,
+		im_category_from_id(co.conf_status_id) as conf_status
 	from	im_timesheet_conf_objects co
 		LEFT OUTER JOIN im_projects p ON (co.conf_project_id = p.project_id)
-	where
-		1=1
+	where	1=1
 		$owner_where
 " {
     set return_url [im_url_with_query]
