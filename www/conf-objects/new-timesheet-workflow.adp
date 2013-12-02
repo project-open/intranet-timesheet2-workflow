@@ -5,15 +5,13 @@
 <h2>@page_title@</h2>
 
 <p>
-Creating workflows for all hours logged between @start_date@ - @end_date@.
+<%= [lang::message::lookup "" intranet-timesheet2-workflow.Creating_workflow_for_all_hours_logged "Creating workflows for all hours logged between %start_date% - %end_date%."] %>
 </p>
 <br>
 
 <ul>
 @li_html;noquote@
 </ul>
-
-
 <br>&nbsp;<br>
 
 <p>
