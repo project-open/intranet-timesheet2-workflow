@@ -33,7 +33,7 @@ set context_bar [im_context_bar $page_title]
 set return_url [im_url_with_query]
 set current_url [ns_conn url]
 
-
+set edit_project_all_p [im_permission $current_user_id "edit_projects_all"]
 
 # ---------------------------------------------------------------
 # Admin Links
@@ -109,18 +109,41 @@ template::list::create \
 set owner_where "and co.conf_user_id = :user_id"
 if {[im_permission $user_id "view_timesheet_conf_all"]} { set owner_where ""}
 
+
+# Only show conf_items of projects that are controlled by the user
+set project_permission_where "1=1"
+if {![im_permission $current_user_id "view_projects_all"]} {
+    set project_permission_where "
+	p.project_id in (
+		select	r.object_id_one
+		from	acs_rels r
+		where	r.object_id_two = :current_user_id
+	)
+    "
+}
+
+
 db_multirow -extend {conf_chk return_url period} conf_lines confs_lines "
 	select	co.*,
 		p.project_name,
 		im_name_from_user_id(co.conf_user_id) as conf_user_name,
-		im_category_from_id(co.conf_status_id) as conf_status
+		im_category_from_id(co.conf_status_id) as conf_status,
+		(select count(*) 
+		from	acs_rels r,
+			im_biz_object_members bom
+		where	r.rel_id = bom.rel_id and
+			bom.object_role_id in (1301,1302,1303) and
+			r.object_id_two = :current_user_id and 
+			r.object_id_one = p.project_id
+		) as write_p
 	from	im_timesheet_conf_objects co
 		LEFT OUTER JOIN im_projects p ON (co.conf_project_id = p.project_id)
-	where	1=1
+	where	$project_permission_where
 		$owner_where
 " {
     set return_url [im_url_with_query]
     set conf_chk "<input type=\"checkbox\" name=\"conf_id\" value=\"$conf_id\" id=\"confs_list,$conf_id\">"
+    if {!$edit_project_all_p && !$write_p} { set conf_chk "" }
     set period "$start_date - $end_date"
 }
 
