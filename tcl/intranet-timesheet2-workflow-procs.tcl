@@ -448,9 +448,8 @@ ad_proc im_timesheet2_workflow_unsubmitted_hours_user_notification_sweeper {
 
 	set locale [lang::user::locale -user_id $u]
 	set subject [lang::message::lookup $locale intranet-timesheet2-workflow.Notification_Subject "Notification: Unsubmitted Hours"]
-	set message [lang::message::lookup $locale intranet-timesheet2-workflow.Notification_Subject \
-   		"Dear %first_names%,\n\nThere are %num_hours% unsubmitted hours in your time sheet.\nPlease visit the following links and submit your hours.\n\n%link_list%\n\nThis message has been sent out automatically by \]project-open\[.
-"]
+	set message [lang::message::lookup $locale intranet-timesheet2-workflow.Notification_Message \
+   		"Dear %first_names%,\n\nThere are %num_hours% unsubmitted hours in your time sheet.\nPlease visit the following links and submit your hours.\n\n%link_list%\n\nThis message has been sent out automatically by \]project-open\[."]
 
 	if {$debug_p} {
 	    ad_return_complaint 1 "<pre>email=$email<br>system_owner=$system_owner<br>subject=$subject<br>message=$message<br>"
