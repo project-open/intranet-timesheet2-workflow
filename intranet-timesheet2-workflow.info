@@ -28,6 +28,11 @@
             <parameter scope="instance" datatype="string"  min_n_values="1"  max_n_values="1"  name="DefaultWorkflowKey"  default="" description="Workflow-Key of the default Time Sheet Approval Workflow, for example 'timesheet_approval_wf'. Default is empty for no workflow."/>
             <parameter scope="instance" datatype="string"  min_n_values="1"  max_n_values="1"  name="ConfirmationPeriod"  default="monthly" description="Show button to confirm hours on monthly or weekly basis. Value range: 'monthly' or 'weekly'"/>
 	    <parameter scope="instance" datatype="number"  min_n_values="1"  max_n_values="1"  name="ShowCommentsInPanel"  default="0" description="Show comments made during the approval process. (Requires pg/sql function to be set in WF writing comments to table 'im_timesheet_conf_object')"/>
+	    <parameter scope="instance" datatype="number"  min_n_values="1"  max_n_values="1"  name="UnsubmittedHoursUserNotificationInterval"  default="0" description="Should we send users with unconfirmed hours a reminder? Default is '0' in order to disable this feature. '86400' (the number of seconds per day) would remind users once per day, while '604800' would send our remindes once per week."/>
+            <parameter scope="instance" datatype="string"  min_n_values="1"  max_n_values="1"  name="UnsubmittedHoursUserNotificationLimitToUserID"  default="624" description="Should we limit the UnsubmittedHours user notification to some test/debugging users before starting to use this feature in production? This parameter accepts a space separated list of user_ids. Set this list to the empty string in order to enable production use. Default is '624' which is the ID of the 'System Administrator' account in most ]po[ systems."/>
+
         </parameters>
     </version>
 </package>
+
+
