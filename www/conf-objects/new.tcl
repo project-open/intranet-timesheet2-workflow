@@ -86,7 +86,7 @@ set actions [list]
 if {[info exists conf_id]} {
 
     if {![ad_form_new_p -key conf_id]} {
-	set conf_exists_p [db_string count "select count(*) from im_timesheet_conf_objects where conf_id=:conf_id"]
+	set conf_exists_p [db_string count "select count(*) from im_timesheet_conf_objects where conf_id=:conf_id" -default 0]
 	if {!$conf_exists_p} {
 	    ad_return_complaint 1 "<b>Error: The selected Confirmation Object (#$conf_id) does not exist</b>:<br>
 	The object has probably been deleted by its owner recently."

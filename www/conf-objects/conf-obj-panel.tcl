@@ -87,7 +87,7 @@ if {[info exists task]} {
 
 set transition_key [db_string transition_key "select transition_key from wf_tasks where task_id = :task_id" -default ""]
 set current_user_id [ad_maybe_redirect_for_registration]
-set object_name [db_string name "select acs_object__name(:conf_id)"]
+set object_name [db_string name "select acs_object__name(:conf_id)" -default ""]
 
 # ---------------------------------------------------------------
 # Get the included hours
