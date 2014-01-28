@@ -15,6 +15,7 @@ ad_page_contract {
     { end_date "" }
     { output_format "html" }
     { number_locale "" }
+    { type_of_hours "" }
     { project_id:integer 0}
     { company_id:integer 0}
     { project_status_id:integer 0}
@@ -67,16 +68,23 @@ if {"" != $end_date && ![regexp {[0-9][0-9][0-9][0-9]\-[0-9][0-9]\-[0-9][0-9]} $
     Expected format: 'YYYY-MM-DD'"
 }
 
+# Default is "unsubmitted hours" - hours not yet submitted to a TS workflow
+if {"" == $type_of_hours} { set type_of_hours "unsubmitted" }
+
 set page_title [lang::message::lookup "" intrant-timesheet2-workflow.Unsubmitted_Hours "Unsubmitted Hours"]
 set context_bar [im_context_bar $page_title]
 set context ""
 
 set levels [list 1 [lang::message::lookup "" intranet-timesheet2-workflow.User_Only "User Only"] 2 [lang::message::lookup "" intranet-timesheet2-workflow.User_and_Month "User + Month"] 3 [lang::message::lookup "" intranet-timesheet2-workflow.All_Details "All Details"]]
 
-
-
-# ------------------------------------------------------------
-# Defaults
+set type_of_hours_options [list \
+			       "all" [lang::message::lookup "" intranet-timesheet2-workflow.All_Hours_option "All Hours"] \
+			       "unsubmitted" [lang::message::lookup "" intranet-timesheet2-workflow.Unsubmitted_Hours_option "Unsubmitted Hours"] \
+			       "submitted" [lang::message::lookup "" intranet-timesheet2-workflow.Submitted_Hours_option "Submitted Hours"] \
+			       "unapproved" [lang::message::lookup "" intranet-timesheet2-workflow.Unapproved_Hours_option "Unapproved Hours"] \
+			       "approved" [lang::message::lookup "" intranet-timesheet2-workflow.Approved_Hours_option "Approved Hours"] \
+			       "requested" [lang::message::lookup "" intranet-timesheet2-workflow.Requested_Hours_option "Requested Hours"] \
+]
 
 if {"" == $start_date} { set start_date "2000-01-01" }
 if {"" == $end_date} { set end_date "2099-12-31" }
@@ -84,8 +92,61 @@ if {"" == $end_date} { set end_date "2099-12-31" }
 # Maxlevel is 4. Normalize in order to show the right drop-down element
 if {$level_of_detail > 3} { set level_of_detail 3 }
 
+
+# ------------------------------------------------------------
+# Permissions - Unprivileged users can only see their own hours
+#
+set view_hours_all_p [expr [im_permission $current_user_id view_hours_all] || [im_permission $current_user_id add_hours_all]]
+set view_hours_direct_reports_p [im_permission $current_user_id add_hours_direct_reports]
+if {!$view_hours_all_p && !$view_hours_direct_reports_p} { set member_id $current_user_id }
+if {!$view_hours_all_p && $view_hours_direct_reports_p} { 
+    # Only see direct reports
+    set direct_reports [im_user_direct_reports_ids -user_id $current_user_id]
+    if {"" != $member_id} {
+	# A specific user was set - ccheck if that's allowed
+	if {[lsearch $direct_reports $member_id] < 0} {
+	    # Bad member_id - attempted security breach
+	    set member_id $current_user_id
+	}
+    } else {
+	# No specific member was set, but !!!
+    }
+}
+
+if {!$view_hours_all_p && !$view_hours_direct_reports_p} { 
+    set member_id $current_user_id
+}
+
+
+# ------------------------------------------------------------
+# Determine the user drop-down box depending on permissions
+
+# Unprivileged user
+set member_options [list [list [im_name_from_user_id $current_user_id] $current_user_id]]
+
+# User who can see his direct reports
+if {$view_hours_direct_reports_p} {
+    set member_options [im_user_direct_reports_options -user_id $current_user_id]
+}
+
+# User can see all users
+if {$view_hours_all_p} {
+    set member_options [im_user_options \
+			    -include_empty_p 0 \
+			    -group_id [im_profile_employees] \
+    ]
+}
+
+set member_options [linsert $member_options 0 [list [_ intranet-core.--_Please_select_--] ""]]
+
+
+
+# ------------------------------------------------------------
+# URLs for report links
+
 set company_url "/intranet/companies/view?company_id="
 set project_url "/intranet/projects/view?project_id="
+set conf_object_url "/intranet-timesheet2-workflow/conf-objects/new?form_mode=display&conf_id="
 set user_url "/intranet/users/view?user_id="
 set this_url [export_vars -base "/intranet-timesheet2-workflow/reports/unsubmitted-hours" {start_date end_date level_of_detail project_id project_lead_id} ]
 
@@ -104,6 +165,16 @@ if {0 != $project_type_id && "" != $project_type_id} { lappend criteria "p.proje
 if {0 != $project_lead_id && "" != $project_lead_id} { lappend criteria "main_p.project_lead_id = :project_lead_id" }
 if {0 != $company_id && "" != $company_id} { lappend criteria "p.company_id = :company_id" }
 if {0 != $member_id && "" != $member_id} { lappend criteria "h.user_id = :member_id" }
+
+switch $type_of_hours {
+    "all" { }
+    "unsubmitted" { lappend criteria "tco.conf_id is null" }
+    "submitted" { lappend criteria "tco.conf_id is not null" }
+    "unapproved" { lappend criteria "tco.conf_status_id != [im_timesheet_conf_obj_status_active]" }
+    "approved" { lappend criteria "tco.conf_status_id = [im_timesheet_conf_obj_status_active]" }
+    "requested" { lappend criteria "tco.conf_status_id = [im_timesheet_conf_obj_status_requested]" }
+    default { }
+}
 
 set where_clause [join $criteria " and\n\t\t"]
 if { ![empty_string_p $where_clause] } {
@@ -143,6 +214,7 @@ set sql "
 	select	*,
 		to_char(day, :date_format) as day_pretty,
 		to_char(day, 'YYYY-MM') as day_month,
+		im_category_from_id(conf_status_id) as conf_status,
 		im_name_from_user_id(user_id) as user_name,
 		im_name_from_user_id(main_project_lead_id) as main_project_lead_name,
 		user_id || '-' || to_char(day, 'YYYY-MM') as user_day_month
@@ -155,14 +227,16 @@ set sql "
 			main_p.project_lead_id as main_project_lead_id,
 			c.company_id,
 			c.company_name,
+			tco.conf_id,
+			tco.conf_status_id,
 			sum(h.hours) as hours
 		from
-			im_hours h,
+			im_hours h
+			LEFT OUTER JOIN im_timesheet_conf_objects tco ON (h.conf_object_id = tco.conf_id),
 			im_projects p,
 			im_projects main_p,
 			im_companies c
 		where
-			h.conf_object_id is null and
 			h.project_id = p.project_id and
 			tree_root_key(p.tree_sortkey) = main_p.tree_sortkey and
 			main_p.company_id = c.company_id
@@ -177,7 +251,9 @@ set sql "
 			main_p.project_name,
 			main_p.project_lead_id,
 			c.company_id,
-			c.company_name			
+			c.company_name,
+			tco.conf_id,
+			tco.conf_status_id
 		) t
 	order by
 		user_name,
@@ -188,7 +264,10 @@ set sql "
 "
 
 # Global header/footer
-set header0 [list [_ intranet-core.User] [_ intranet-core.Month] [_ intranet-core.Customer] [_ intranet-core.Project_Name] [_ intranet-core.Project_Manager] [_ intranet-core.Date] [_ intranet-timesheet2.Hours]]
+set conf_object_l10n [lang::message::lookup "" intranet-timesheet2-workflow.Conf_Object "Conf Object"]
+set header0 [list [_ intranet-core.User] [_ intranet-core.Month] [_ intranet-core.Customer] [_ intranet-core.Project_Name] [_ intranet-core.Project_Manager] [_ intranet-core.Date] $conf_object_l10n [_ intranet-timesheet2.Hours]]
+
+
 set footer0 {}
 
 set report_def [list \
@@ -204,19 +283,20 @@ set report_def [list \
 		} \
 		content [list \
 			header {
-				""
-				"$day_month"
-				"<a href=$company_url$company_id>$company_name</a>"
-				"<a href=$project_url$main_project_id>$main_project_name</a>"
-				"<a href=$user_url$main_project_lead_id>$main_project_lead_name</a>"
-				"$day_pretty"
-				"#align=right $hours_pretty"
+			    ""
+			    "$day_month"
+			    "<a href=$company_url$company_id>$company_name</a>"
+			    "<a href=$project_url$main_project_id>$main_project_name</a>"
+			    "<a href=$user_url$main_project_lead_id>$main_project_lead_name</a>"
+			    "$day_pretty"
+			    "<a href=$conf_object_url$conf_id target=_blank>$conf_status</a>"
+			    "#align=right <font color=$color>$hours_pretty</font>"
 			} \
 			content [list] \
 		]\
-		footer {"" "" "" "" "" "" "#align=right <i>$hours_monthly_sum_pretty</i>"} \
+		footer {"" "" "" "" "" "" "" "#align=right <i>$hours_monthly_sum_pretty</i>"} \
 	] \
-	footer {"" "" "" "" "" "" "#align=right <b>$hours_subtotal_pretty</b>"} \
+	footer {"" "" "" "" "" "" "" "#align=right <b>$hours_subtotal_pretty</b>"} \
 ]
 
 
@@ -242,9 +322,15 @@ switch $output_format {
 		  </td>
 		</tr>
 		<tr>
+	          <td class=form-label>[lang::message::lookup "" intranet-timesheet2-workflow.Type_of_Hours "Type of Hours"]</td>
+		  <td class=form-widget>
+		    [im_select -translate_p 1 type_of_hours $type_of_hours_options $type_of_hours]
+		  </td>
+		</tr>
+		<tr>
 		  <td class=form-label>[_ intranet-core.User]</td>
 		  <td class=form-widget>
-		    [im_user_select -include_empty_p 1 -include_empty_name [_ intranet-core.--_Please_select_--] member_id $member_id]
+		    [im_select -translate_p 0 -ad_form_option_list_style_p 1 member_id $member_options $member_id]
 		  </td>
 		</tr>
 		<tr>
@@ -312,6 +398,19 @@ set class "rowodd"
 db_foreach sql $sql {
 
     set hours_pretty [im_report_format_number $hours $output_format $number_locale]
+    set conf_object_name $conf_object_l10n
+    if {"" == $conf_id} { set conf_object_name "" }
+    ns_log Notice "xxx: [string tolower $conf_status]"
+    switch [string tolower $conf_status] {
+	"" { set color "#235c96" }
+	active { set color "#20A003" }
+	rejected { 
+	    set color "#F77809" 
+	    set conf_status "Not Confirmed"
+	}
+	requested { set color "#F77809" }
+	default { set color "black" }
+    }
 
     im_report_display_footer \
 	-output_format $output_format \
