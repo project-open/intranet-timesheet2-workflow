@@ -532,7 +532,7 @@ User %user_name% has modified hours in the following projects:\n
 	if [catch {
 	    ns_sendmail $supervisor_email $sender_email $subject $message
 	} errmsg] {
-	    ns_log Error "im_timesheet_conf_object_delete: Error sending to \"$email\": $errmsg"
+	    ns_log Error "im_timesheet_conf_object_delete: Error sending to \"$supervisor_email\": $errmsg"
 	} else {
 	    ns_log Notice "im_timesheet_conf_object_delete: Sent mail to $email\n"
 	}
