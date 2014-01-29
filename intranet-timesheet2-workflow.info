@@ -21,6 +21,7 @@
         <requires url="acs-workflow" version="3.2"/>
         <requires url="intranet-core" version="3.2"/>
         <requires url="intranet-timesheet2" version="3.2"/>
+        <requires url="intranet-reporting" version="3.2"/>
 
         <callbacks>
         </callbacks>
