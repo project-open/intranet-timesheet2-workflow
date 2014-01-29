@@ -468,3 +468,74 @@ ad_proc im_timesheet2_workflow_unsubmitted_hours_user_notification_sweeper {
 
     ns_log Notice "im_timesheet2_workflow_unsubmitted_hours_user_notification_sweeper: Finished"
 }
+
+
+ad_proc im_timesheet_conf_object_notify_supervisor {
+    -modified_projects_tuples
+    -user_id:required
+    {-debug_p 0}
+} {
+    Notifiy supervisor if hours are touched in the past.
+} {
+    ns_log Notice "im_timesheet_conf_object_notify_supervisor: Starting"
+
+    # Hash map project_id -> list of julian dates
+    array set modified_projects_hash $modified_projects_tuples
+    array set ansi_hash {}
+    foreach pid [array names modified_projects_hash] {
+	set julian_list $modified_projects_hash($pid)
+	foreach j $julian_list {
+	    set ansi [im_date_julian_to_ansi $j]
+	    set ansi_hash($ansi) $ansi
+	}
+    }
+
+    # Sorted unique list of dates where hours were modified
+    set ansi_list [lsort -unique [array names ansi_hash]]
+
+    # ToDo: 
+    # - Connect to notification mechanism
+    set user_id $user_id
+    set supervisor_email [db_string supervisor "select im_email_from_user_id(supervisor_id) from im_employees where employee_id = :user_id" -default ""]
+    if {"" != $supervisor_email} {
+
+	# Determine the sender address
+	set sender_email [ad_parameter -package_id [ad_acs_kernel_id] SystemOwner "" [ad_system_owner]]
+	set user_name [db_string user_name "select im_name_from_user_id(:user_id) from dual" -default "unknown"]
+	set subject [lang::message::lookup "" intranet-timesheet2-workflow.User_Modified_Past_Hours "User %user_name% Modified Past Hours"]
+
+	set project_sql "
+		select distinct
+			main_p.project_name
+		from	im_projects sub_p,
+			im_projects main_p
+		where	sub_p.project_id in ([join [array names modified_projects_hash] ","]) and
+			main_p.tree_sortkey = tree_root_key(sub_p.tree_sortkey)
+	"
+	set project_list_txt ""
+	db_foreach projects $project_sql {
+	    append project_list_txt "- $project_name\n"
+	}
+
+	set ansi_list_txt ""
+	foreach ansi $ansi_list {
+	    append ansi_list_txt "- $ansi\n"
+	}
+
+	set message [lang::message::lookup "" intranet-timesheet2-workflow.User_Modified_Past_Hours_message "
+User %user_name% has modified hours in the following projects:\n
+%project_list_txt%
+\non the following dates:\n
+%ansi_list_txt%
+"]
+
+	if [catch {
+	    ns_sendmail $supervisor_email $sender_email $subject $message
+	} errmsg] {
+	    ns_log Error "im_timesheet_conf_object_delete: Error sending to \"$email\": $errmsg"
+	} else {
+	    ns_log Notice "im_timesheet_conf_object_delete: Sent mail to $email\n"
+	}
+    }
+}
+
