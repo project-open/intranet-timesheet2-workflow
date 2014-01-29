@@ -144,11 +144,15 @@ set member_options [linsert $member_options 0 [list [_ intranet-core.--_Please_s
 # ------------------------------------------------------------
 # URLs for report links
 
+set current_url [im_url_with_query]
 set company_url "/intranet/companies/view?company_id="
 set project_url "/intranet/projects/view?project_id="
 set conf_object_url "/intranet-timesheet2-workflow/conf-objects/new?form_mode=display&conf_id="
 set user_url "/intranet/users/view?user_id="
 set this_url [export_vars -base "/intranet-timesheet2-workflow/reports/unsubmitted-hours" {start_date end_date level_of_detail project_id project_lead_id} ]
+set wf_approval_url [export_vars -base "/acs-workflow/task" {{return_url $current_url}}]
+
+
 
 # BaseURL for drill-down. Needs company_id, project_id, user_id, level_of_detail
 set base_url [export_vars -base "/intranet-timesheet2-workflow/reports/unsubmitted-hours" {start_date end_date}]
@@ -210,14 +214,21 @@ set counters [list \
 #
 
 set sql "
-
 	select	*,
 		to_char(day, :date_format) as day_pretty,
 		to_char(day, 'YYYY-MM') as day_month,
 		im_category_from_id(conf_status_id) as conf_status,
 		im_name_from_user_id(user_id) as user_name,
 		im_name_from_user_id(main_project_lead_id) as main_project_lead_name,
-		user_id || '-' || to_char(day, 'YYYY-MM') as user_day_month
+		user_id || '-' || to_char(day, 'YYYY-MM') as user_day_month,
+		(
+			select	wtr.transition_name
+			from	wf_tasks wta,
+				wf_transitions wtr
+			where	wta.task_id = t.task_id and
+				wtr.workflow_key = wta.workflow_key and
+				wtr.transition_key = wta.transition_key
+		) as transition_name
 	from	(
 		select
 			h.day,
@@ -229,10 +240,13 @@ set sql "
 			c.company_name,
 			tco.conf_id,
 			tco.conf_status_id,
+			wt.task_id,
 			sum(h.hours) as hours
 		from
 			im_hours h
-			LEFT OUTER JOIN im_timesheet_conf_objects tco ON (h.conf_object_id = tco.conf_id),
+			LEFT OUTER JOIN im_timesheet_conf_objects tco ON (h.conf_object_id = tco.conf_id)
+			LEFT OUTER JOIN wf_cases wc ON (wc.object_id = tco.conf_id)
+			LEFT OUTER JOIN wf_tasks wt ON (wt.case_id = wc.case_id and wt.state != 'finished'),
 			im_projects p,
 			im_projects main_p,
 			im_companies c
@@ -253,7 +267,8 @@ set sql "
 			c.company_id,
 			c.company_name,
 			tco.conf_id,
-			tco.conf_status_id
+			tco.conf_status_id,
+			wt.task_id
 		) t
 	order by
 		user_name,
@@ -265,7 +280,7 @@ set sql "
 
 # Global header/footer
 set conf_object_l10n [lang::message::lookup "" intranet-timesheet2-workflow.Conf_Object "Conf Object"]
-set header0 [list [_ intranet-core.User] [_ intranet-core.Month] [_ intranet-core.Customer] [_ intranet-core.Project_Name] [_ intranet-core.Project_Manager] [_ intranet-core.Date] $conf_object_l10n [_ intranet-timesheet2.Hours]]
+set header0 [list [_ intranet-core.User] [_ intranet-core.Month] [_ intranet-core.Customer] [_ intranet-core.Project_Name] [_ intranet-core.Project_Manager] [_ intranet-core.Date] $conf_object_l10n [_ intranet-timesheet2.Hours] [_ intranet-core.Workflow] ]
 
 
 set footer0 {}
@@ -291,12 +306,13 @@ set report_def [list \
 			    "$day_pretty"
 			    "<a href=$conf_object_url$conf_id target=_blank>$conf_status</a>"
 			    "#align=right <font color=$color>$hours_pretty</font>"
+			    "<a href=$wf_approval_url&task_id=$task_id class=$wf_action_button_class>$transition_name_l10n</a>"
 			} \
 			content [list] \
 		]\
-		footer {"" "" "" "" "" "" "" "#align=right <i>$hours_monthly_sum_pretty</i>"} \
+		footer {"" "" "" "" "" "" "" "#align=right <i>$hours_monthly_sum_pretty</i>" ""} \
 	] \
-	footer {"" "" "" "" "" "" "" "#align=right <b>$hours_subtotal_pretty</b>"} \
+	footer {"" "" "" "" "" "" "" "#align=right <b>$hours_subtotal_pretty</b>" ""} \
 ]
 
 
@@ -400,16 +416,37 @@ db_foreach sql $sql {
     set hours_pretty [im_report_format_number $hours $output_format $number_locale]
     set conf_object_name $conf_object_l10n
     if {"" == $conf_id} { set conf_object_name "" }
-    ns_log Notice "xxx: [string tolower $conf_status]"
     switch [string tolower $conf_status] {
-	"" { set color "#235c96" }
-	active { set color "#20A003" }
+	"" { 
+	    # No configuration object yet - unsubmitted hours
+	    set color "red" 
+	}
+	active { 
+	    # After confirmation by supervisor
+	    set color "#20A003" 
+	}
 	rejected { 
+	    # "rejected" means "before the confirmation process"
+	    # The stauts name is misleading
 	    set color "#F77809" 
 	    set conf_status "Not Confirmed"
 	}
-	requested { set color "#F77809" }
-	default { set color "black" }
+	requested { 
+	    # Submitted for approval, but not approved yet
+	    set color "#F77809" 
+	}
+	default { 
+	    set color "black" 
+	}
+    }
+
+    # Format the "Approve" button behind WF controlled hours
+    regsub -all " " $transition_name "_" transition_name
+    set transition_name_l10n [lang::message::lookup "" intranet-workflow.$transition_name $transition_name]
+    set wf_action_button_class "button"
+    if {"" == $transition_name} { 
+       set wf_action_button_class "" 
+       set transition_name_l10n ""
     }
 
     im_report_display_footer \
