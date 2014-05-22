@@ -90,7 +90,7 @@ set project_list [array names project_list_hash]
 set li_html ""
 foreach project_id $project_list {
 
-    set project_name [util_memoize "db_string pname \"select project_name from im_projects where project_id=$project_id\" -default {Error}"]
+    set project_name [util_memoize [list db_string pname "select project_name from im_projects where project_id=$project_id" -default "Error"]]
     append li_html "<li>[lang::message::lookup "" intranet-timesheet2-workflow.Starting_WF_for_project "
     	   Starting a new workflow for project '%project_name%' (#%project_id%).
     "]\n"
