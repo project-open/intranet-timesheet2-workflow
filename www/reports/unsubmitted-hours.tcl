@@ -460,6 +460,8 @@ db_foreach sql $sql {
     
     im_report_update_counters -counters $counters
 
+    set hours_monthly_sum [expr round(100.0 * $hours_monthly_sum) / 100.0]
+    set hours_subtotal [expr round(100.0 * $hours_subtotal) / 100.0]
     set hours_subtotal_pretty [im_report_format_number $hours_subtotal $output_format $number_locale]
     set hours_monthly_sum_pretty [im_report_format_number $hours_monthly_sum $output_format $number_locale]
     
