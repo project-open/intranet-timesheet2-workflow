@@ -192,7 +192,7 @@ if { ![empty_string_p $where_clause] } {
 set hours_monthly_sum_counter [list \
         pretty_name "Hours Monthly" \
         var hours_monthly_sum \
-        reset "\$user_day_month" \
+        reset \$user_day_month \
         expr "\$hours+0" \
 ]
 
@@ -208,7 +208,6 @@ set counters [list \
 		  $hours_subtotal_counter \
 ]
 
-
 # ------------------------------------------------------------
 # Define the report - SQL, counters, headers and footers 
 #
@@ -220,7 +219,7 @@ set sql "
 		im_category_from_id(conf_status_id) as conf_status,
 		im_name_from_user_id(user_id) as user_name,
 		im_name_from_user_id(main_project_lead_id) as main_project_lead_name,
-		user_id || '-' || to_char(day, 'YYYY-MM') as user_day_month,
+		user_id || '00' || to_char(day, 'YYYYMM') as user_day_month,
 		(
 			select	wtr.transition_name
 			from	wf_tasks wta,
