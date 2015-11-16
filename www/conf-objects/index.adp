@@ -20,7 +20,7 @@
   </td>
 
   <td>&nbsp;</td>
-  <td valign=top width='30%'>
+  <td valign=top width="30%">
     <table border=0 cellpadding=0 cellspacing=0>
     <tr>
       <td class=rowtitle align=center>
@@ -42,7 +42,7 @@
 <h2>@page_title;noquote@</h2>
 
 -->
-<table width='100%'>
+<table width="100%">
 <tr><td>
 <listtemplate name="@list_id@"></listtemplate>
 </td></tr>
