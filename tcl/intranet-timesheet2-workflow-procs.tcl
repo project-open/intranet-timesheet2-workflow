@@ -126,22 +126,13 @@ set ttt {
     # Determine the case for the conf_object or create it.
 
     set context_key ""
-    set case_ids [db_list case "
-    	select	case_id
-	from	wf_cases
-	where	object_id = :conf_object_id
-    "]
+    set case_ids [db_list case "select case_id from wf_cases where object_id = :conf_object_id"]
     ns_log Notice "spawn_update_workflow: case_ids = $case_ids"
-
     if {[llength $case_ids] == 0} {
 
-	set case_id [wf_case_new \
-		$workflow_key \
-		$context_key \
-		$conf_object_id
-        ]
+	# fraber 151102: Create case, but don't start yet (no default assignment)
+	set case_id [wf_case_new $workflow_key $context_key $conf_object_id]
 	ns_log Notice "spawn_update_workflow: case_id = $case_id"
-#	append result_html "<li>No workflow found - creating new one #$case_id\n"
 
 	# Skip the first transition of the WF - "Modify"
 	im_workflow_skip_first_transition -case_id $case_id
@@ -226,20 +217,20 @@ ad_proc -public im_timesheet_conf_object_delete {
 } {
     # Get the main project - the first project above or equal to project_id that is not a task.
     db_1row parent "
-                select  project_id,
-                        parent_id,
-                        project_type_id
-                from    im_projects
-                where   project_id = :project_id
+		select  project_id,
+		        parent_id,
+		        project_type_id
+		from    im_projects
+		where   project_id = :project_id
     "
     # Go up the hierarchy only if there is a parent_id != null...
     while {"" != $parent_id && $project_type_id == [im_project_type_task]} {
        db_1row parent "
-                select  project_id,
-                        parent_id,
-                        project_type_id
-                from    im_projects
-                where   project_id = :parent_id
+		select  project_id,
+		        parent_id,
+		        project_type_id
+		from    im_projects
+		where   project_id = :parent_id
        "
     }
     set main_project_id $project_id
