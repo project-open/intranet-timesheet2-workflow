@@ -365,8 +365,8 @@ ad_proc im_timesheet2_workflow_unsubmitted_hours_user_notification_sweeper {
 } {
     ns_log Notice "im_timesheet2_workflow_unsubmitted_hours_user_notification_sweeper: Starting"
 
-    set system_url [ad_parameter -package_id [ad_acs_kernel_id] SystemURL "" ""]
-    set system_owner [ad_parameter -package_id [ad_acs_kernel_id] SystemOwner "" [ad_system_owner]]
+    set system_url [im_parameter -package_id [ad_acs_kernel_id] SystemURL "" ""]
+    set system_owner [im_parameter -package_id [ad_acs_kernel_id] SystemOwner "" [ad_system_owner]]
 
     set start_date_sql ""
     if {"" != $start_date} {
@@ -491,7 +491,7 @@ ad_proc im_timesheet_conf_object_notify_supervisor {
     if {"" != $supervisor_email} {
 
 	# Determine the sender address
-	set sender_email [ad_parameter -package_id [ad_acs_kernel_id] SystemOwner "" [ad_system_owner]]
+	set sender_email [im_parameter -package_id [ad_acs_kernel_id] SystemOwner "" [ad_system_owner]]
 	set user_name [db_string user_name "select im_name_from_user_id(:user_id) from dual" -default "unknown"]
 	set subject [lang::message::lookup "" intranet-timesheet2-workflow.User_Modified_Past_Hours "User %user_name% Modified Past Hours"]
 
