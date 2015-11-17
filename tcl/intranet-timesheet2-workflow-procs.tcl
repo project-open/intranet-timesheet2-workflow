@@ -189,7 +189,7 @@ ad_proc -public im_timesheet_conf_object_new {
 		null,
 		'im_timesheet_conf_object',
 		now(),
-		[ad_get_user_id],
+		[ad_conn user_id],
 		'[ad_conn peeraddr]',
 		null,
 
