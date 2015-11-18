@@ -13,7 +13,7 @@
   <td> 
 
 	<form method=get action='index'>
-	<%= [export_form_vars material_group_id material_start_idx material_order_by material_how_many material_view_name] %>
+	<%= [export_vars -form {material_group_id material_start_idx material_order_by material_how_many material_view_name}] %>
 
 	</form>
 
