@@ -40,7 +40,7 @@ set edit_project_all_p [im_permission $current_user_id "edit_projects_all"]
 # ---------------------------------------------------------------
 
 set admin_links ""
-append admin_links " <li><a href=\"new?[export_url_vars object_id return_url]\">[_ intranet-timesheet2-workflow.Add_a_new_Conf]</a>\n"
+append admin_links " <li><a href=\"new?[export_vars -url {object_id return_url}]\">[_ intranet-timesheet2-workflow.Add_a_new_Conf]</a>\n"
 if {"" != $admin_links} { set admin_links "<ul>\n$admin_links</ul>\n" }
 
 set bulk_actions_list "[list]"
