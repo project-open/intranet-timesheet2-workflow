@@ -308,7 +308,7 @@ ad_proc im_timesheet_conf_new_page_wf_perm_delete_button {
     ]
 
     ns_log Notice "im_timesheet_conf_new_page_wf_perm_delete_button conf_id=$conf_id => $perm_set"
-    return [expr [lsearch $perm_set "d"] > -1]
+    return [expr {[lsearch $perm_set "d"] > -1}]
 }
 
 ad_proc im_timesheet_conf_new_page_wf_perm_edit_button {
@@ -323,7 +323,7 @@ ad_proc im_timesheet_conf_new_page_wf_perm_edit_button {
     ]
 
     ns_log Notice "im_timesheet_conf_new_page_wf_perm_edit_button conf_id=$conf_id => $perm_set"
-    return [expr [lsearch $perm_set "w"] > -1]
+    return [expr {[lsearch $perm_set "w"] > -1}]
 }
 
 
@@ -347,7 +347,7 @@ ad_proc eval_wf_start_date {
 
     if { $one_week_back_month == $date_part_month } {
        # Find
-        return [expr $date_julian - [expr $day_of_week - 1]]
+        return [expr {$date_julian - [expr {$day_of_week - 1}]}]
     } else {
         # return first day of month
         return [dt_ansi_to_julian_single_arg "$date_part_year-$date_part_month-01"]
@@ -401,14 +401,14 @@ ad_proc im_timesheet2_workflow_unsubmitted_hours_user_notification_sweeper {
 	set key "$user_id-$hour_month"
 	set h 0
 	if {[info exists user_hour_month_hash($key)]} { set h $user_hour_month_hash($key) }
-	set h [expr $h + $hours]
+	set h [expr {$h + $hours}]
 	set user_hour_month_hash($key) $h
 
 	# Sum up unconfirmed hours total
 	set key "$user_id"
 	set h 0
 	if {[info exists user_hour_hash($key)]} { set h $user_hour_hash($key) }
-	set h [expr $h + $hours]
+	set h [expr {$h + $hours}]
 	set user_hour_hash($key) $h
 
 	# Store auxillary variables in their hashes
@@ -446,9 +446,9 @@ ad_proc im_timesheet2_workflow_unsubmitted_hours_user_notification_sweeper {
 	    ad_return_complaint 1 "<pre>email=$email<br>system_owner=$system_owner<br>subject=$subject<br>message=$message<br>"
 	}  else {
 
-	    if [catch {
+	    if {[catch {
 		ns_sendmail $email $system_owner $subject $message
-	    } errmsg] {
+	    } errmsg]} {
 		ns_log Error "im_timesheet2_workflow_unsubmitted_hours_user_notification_sweeper: Error sending to \"$email\": $errmsg"
 	    } else {
 		ns_log Notice "im_timesheet2_workflow_unsubmitted_hours_user_notification_sweeper: Sent mail to $email\n"
@@ -520,9 +520,9 @@ User %user_name% has modified hours in the following projects:\n
 %ansi_list_txt%
 "]
 
-	if [catch {
+	if {[catch {
 	    ns_sendmail $supervisor_email $sender_email $subject $message
-	} errmsg] {
+	} errmsg]} {
 	    ns_log Error "im_timesheet_conf_object_delete: Error sending to \"$supervisor_email\": $errmsg"
 	} else {
 	    ns_log Notice "im_timesheet_conf_object_delete: Sent mail to $email\n"

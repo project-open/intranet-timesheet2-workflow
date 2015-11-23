@@ -3,12 +3,12 @@
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <master>
-<property name="title">@page_title@</property>
-<property name="context">@context_bar@</property>
+<property name="doc(title)">@page_title;literal@</property>
+<property name="context">@context_bar;literal@</property>
 <property name="main_navbar_label">notes</property>
 
 <!--
-<table border=0 cellpadding=0 cellspacing=0>
+<table border="0" cellpadding="0" cellspacing="0">
 <tr>
   <td> 
 
@@ -20,10 +20,10 @@
   </td>
 
   <td>&nbsp;</td>
-  <td valign=top width="30%">
-    <table border=0 cellpadding=0 cellspacing=0>
+  <td valign="top" width="30%">
+    <table border="0" cellpadding="0" cellspacing="0">
     <tr>
-      <td class=rowtitle align=center>
+      <td class=rowtitle align="center">
         #intranet-core.Admin_Links#
       </td>
     </tr>

@@ -32,7 +32,7 @@ ad_page_contract {
 # because it identifies unquely the report's Menu and
 # its permissions.
 set menu_label "reporting-timesheet-unsubmitted-hours"
-set current_user_id [ad_maybe_redirect_for_registration]
+set current_user_id [auth::require_login]
 set read_p [db_string report_perms "
 	select	im_object_permission_p(m.menu_id, :current_user_id, 'read')
 	from	im_menus m
@@ -96,7 +96,7 @@ if {$level_of_detail > 3} { set level_of_detail 3 }
 # ------------------------------------------------------------
 # Permissions - Unprivileged users can only see their own hours
 #
-set view_hours_all_p [expr [im_permission $current_user_id view_hours_all] || [im_permission $current_user_id add_hours_all]]
+set view_hours_all_p [expr {[im_permission $current_user_id view_hours_all] || [im_permission $current_user_id add_hours_all]}]
 set view_hours_direct_reports_p [im_permission $current_user_id add_hours_direct_reports]
 if {!$view_hours_all_p && !$view_hours_direct_reports_p} { set member_id $current_user_id }
 if {!$view_hours_all_p && $view_hours_direct_reports_p} { 
@@ -181,7 +181,7 @@ switch $type_of_hours {
 }
 
 set where_clause [join $criteria " and\n\t\t"]
-if { ![empty_string_p $where_clause] } {
+if { $where_clause ne "" } {
     set where_clause " and $where_clause"
 }
 
@@ -459,8 +459,8 @@ db_foreach sql $sql {
     
     im_report_update_counters -counters $counters
 
-    set hours_monthly_sum [expr round(100.0 * $hours_monthly_sum) / 100.0]
-    set hours_subtotal [expr round(100.0 * $hours_subtotal) / 100.0]
+    set hours_monthly_sum [expr {round(100.0 * $hours_monthly_sum) / 100.0}]
+    set hours_subtotal [expr {round(100.0 * $hours_subtotal) / 100.0}]
     set hours_subtotal_pretty [im_report_format_number $hours_subtotal $output_format $number_locale]
     set hours_monthly_sum_pretty [im_report_format_number $hours_monthly_sum $output_format $number_locale]
     

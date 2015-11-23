@@ -32,7 +32,7 @@ set wf_user_id $user_id
 # Check for valid user/auth_token combination
 set valid_p [im_valid_auto_login_p -check_user_requires_manual_login_p 0 -user_id $user_id -auto_login $auth_token]
 if {!$valid_p} {
-    set user_id [ad_maybe_redirect_for_registration]
+    set user_id [auth::require_login]
 }
 
 set page_title "[lang::message::lookup "" intranet-timesheet2-workflow.Create_New_Timesheet_Workflow "New Timesheet Workflow(s)"]"

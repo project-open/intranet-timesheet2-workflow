@@ -21,7 +21,7 @@ ad_page_contract {
 # ---------------------------------------------------------------
 
 # User id already verified by filters
-set user_id [ad_maybe_redirect_for_registration]
+set user_id [auth::require_login]
 set current_user_id $user_id
 set page_focus "im_header_form.keywords"
 set user_admin_p [im_is_user_site_wide_or_intranet_admin $current_user_id]
@@ -40,7 +40,7 @@ set edit_project_all_p [im_permission $current_user_id "edit_projects_all"]
 # ---------------------------------------------------------------
 
 set admin_links ""
-append admin_links " <li><a href=\"new?[export_vars -url {object_id return_url}]\">[_ intranet-timesheet2-workflow.Add_a_new_Conf]</a>\n"
+append admin_links " <li><a href=\"[export_vars -base new {object_id return_url}]\">[_ intranet-timesheet2-workflow.Add_a_new_Conf]</a>\n"
 if {"" != $admin_links} { set admin_links "<ul>\n$admin_links</ul>\n" }
 
 set bulk_actions_list "[list]"

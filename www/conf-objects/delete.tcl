@@ -19,7 +19,7 @@ ad_page_contract {
 # Defaults & Security
 # ---------------------------------------------------------------
 
-set user_id [ad_maybe_redirect_for_registration]
+set user_id [auth::require_login]
 
 if {![info exists conf_id] || 0 == [llength $conf_id]} { 
     aad_returnredirect $return_url 

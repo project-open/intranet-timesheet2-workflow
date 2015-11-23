@@ -26,7 +26,7 @@ if {![info exists panel_p]} {
     }
 }
 
-set user_id [ad_maybe_redirect_for_registration]
+set user_id [auth::require_login]
 set page_title [lang::message::lookup "" intranet-timesheet2-workflow.Timesheet_Conf_Object "Timesheet Confirmation"]
 set context_bar [im_context_bar $page_title]
 

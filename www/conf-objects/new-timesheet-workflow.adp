@@ -1,5 +1,5 @@
 <master>
-<property name="title">@page_title@</property>
+<property name="doc(title)">@page_title;literal@</property>
 <property name="main_navbar_label">timesheet</property>
 
 <h2>@page_title@</h2>
@@ -15,7 +15,7 @@
 <br>&nbsp;<br>
 
 <p>
-<a href="@return_url;noquote@"
+<a href="@return_url@"
 ><%= [lang::message::lookup "" intranet-timesheet2-workflow.Return_to_previous_page "Return to previous page"] %></a>
 </p>
 <br>
