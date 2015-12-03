@@ -440,8 +440,11 @@ db_foreach sql $sql {
     }
 
     # Format the "Approve" button behind WF controlled hours
+    set transition_name_l10n $transition_name
     regsub -all " " $transition_name "_" transition_name
-    set transition_name_l10n [lang::message::lookup "" intranet-workflow.$transition_name $transition_name]
+    if {"" ne $transition_name} {
+	set transition_name_l10n [lang::message::lookup "" intranet-workflow.$transition_name $transition_name]
+    }
     set wf_action_button_class "button"
     if {"" == $transition_name} { 
        set wf_action_button_class "" 
