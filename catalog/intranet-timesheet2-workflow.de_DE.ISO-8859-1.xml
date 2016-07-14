@@ -19,4 +19,6 @@
   <msg key="Remove_checked_items">Ausgewählte Elemente löschen</msg>
   <msg key="Timesheet_Approval">Bestätigung Zeiterfassungsaufgaben</msg>
   <msg key="Timesheet_Conf_Object">Zeiterfassung bestätigen</msg>
+  <msg key="Timesheet_Unsubmitted_Hours">Nicht eingereichte Stunden</msg>
+  <msg key="Timesheet_Workflow___Unconfirmed_Hours">Workflow Zeiterfassung &amp; Unbestätigte Stunden</msg>
 </message_catalog>
