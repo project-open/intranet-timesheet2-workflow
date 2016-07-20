@@ -110,3 +110,8 @@ foreach project_id $project_list {
 if {0 == [llength $project_list]} { 
     append li_html "<li>No projects found for hours.\n"
 }
+
+# Make sure the WF starts processing TCL Callbacks (for example: KPC) immediately
+wf_sweep_message_transition_tcl
+
+
