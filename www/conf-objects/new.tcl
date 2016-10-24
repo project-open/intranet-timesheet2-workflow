@@ -42,6 +42,9 @@ set conf_project_options [im_project_options]
 set conf_project_nr ""
 
 if {[info exists conf_id]} {
+    # Check if the conf_objbect exists
+    set conf_object_exists_p [db_string exists "select count(*) from im_timesheet_conf_objects where conf_id = :conf_id"]
+
     # Add the conf_item's project to the options, if not already there
     # Otherwise the component can't show the project's name
     set conf_project_id [db_string conf_pid "select conf_project_id from im_timesheet_conf_objects where conf_id = :conf_id" -default ""]
@@ -139,11 +142,9 @@ ad_form \
 
 ad_form -extend -name $form_id \
     -select_query {
-
 	select	*
 	from	im_timesheet_conf_objects
 	where	conf_id = :conf_id
-
     } -new_data {
 	db_exec_plsql create_conf "
 		SELECT im_conf__new(
