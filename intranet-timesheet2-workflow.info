@@ -14,6 +14,7 @@
         <owner url="mailto:frank.bergmann@project-open.com">Frank Bergmann</owner>
         <summary>Provides a &quot;confirmation object&quot; to allow for workflows confirming logged hours by PM.</summary>
         <vendor url="http://www.project-open.com/">]project-open[</vendor>
+        <release-date>2016-11-15</release-date>
         <description format="text/plain">Provides a default confirmation workflow for timesheet hours.</description>
         <maturity>0</maturity>
 
