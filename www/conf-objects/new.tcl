@@ -26,6 +26,7 @@ if {![info exists panel_p]} {
     }
 }
 
+
 set user_id [auth::require_login]
 set page_title [lang::message::lookup "" intranet-timesheet2-workflow.Timesheet_Conf_Object "Timesheet Confirmation"]
 set context_bar [im_context_bar $page_title]
@@ -115,7 +116,13 @@ if {[info exists conf_id]} {
 set button_pressed [template::form get_action form]
 if {"delete" == $button_pressed} {
     db_string conf_delete "select im_timesheet_conf_object__delete(:conf_id)"
-    ad_returnredirect $return_url
+
+    # In some cases, return_url is set to the page showing the case that had been just deleted
+    if { [string first "/acs-workflow/case?case_id" [string tolower $return_url]] == 0 } {
+	ad_returnredirect "/intranet-timesheet2-workflow/conf-objects/"
+    } else {
+	ad_returnredirect $return_url
+    }
 }
 
 # ---------------------------------------------------------------
