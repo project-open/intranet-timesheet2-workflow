@@ -20,6 +20,6 @@
   <msg key="Remove_checked_items">Remove checked items</msg>
   <msg key="Timesheet_Approval">Timesheet Approval</msg>
   <msg key="Timesheet_Conf_Object">Confirm hours logged</msg>
-  <msg key="Timesheet_Unsubmitted_Hours">Timesheet Unsubmitted Hours</msg>
-  <msg key="Timesheet_Workflow___Unconfirmed_Hours">Timesheet Workflow &amp; Unconfirmed Hours</msg>
+  <msg key="Timesheet_Unsubmitted_Hours">Timesheet Workflow - Unsubmitted Hours</msg>
+  <msg key="Timesheet_Workflow___Unconfirmed_Hours">Timesheet Workflow - Unconfirmed Hours</msg>
 </message_catalog>
