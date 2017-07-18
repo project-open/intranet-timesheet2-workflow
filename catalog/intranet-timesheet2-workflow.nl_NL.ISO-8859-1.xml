@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<message_catalog package_key="intranet-timesheet2-workflow" locale="nl_NL" charset="ISO-8859-1">
+
+  <msg key="Add_a_new_Conf">Toevoegen van een nieuw goed te keuren object</msg>
+  <msg key="Conf_Project">Project</msg>
+  <msg key="Conf_Status">Conf_status</msg>
+  <msg key="Conf_Type">Type</msg>
+  <msg key="Conf_User">Medewerker</msg>
+  <msg key="Date">Datum</msg>
+  <msg key="Delete">Verwijderen</msg>
+  <msg key="Hours">Uren</msg>
+  <msg key="Note">Opmerking</msg>
+  <msg key="Notification_Body_Notify_Applicant_TS_Approved">Uw uren zijn goedgekeurd:</msg>
+  <msg key="Notification_Body_Notify_Applicant_TS_Not_Approved">Uw uren zijn niet goedgekeurd:</msg>
+  <msg key="Notification_Subject_Notify_Applicant_TS_Approved">Goedkeuring tijdlijst</msg>
+  <msg key="Notification_Subject_Notify_Applicant_TS_Not_Approved">Goedkeuring tijdlijst</msg>
+  <msg key="Period">Periode</msg>
+  <msg key="Project">Project</msg>
+  <msg key="Remove_checked_items">Verwijder aangevinkte items</msg>
+  <msg key="Timesheet_Approval">Goedkeuren tijdlijst</msg>
+  <msg key="Timesheet_Conf_Object">Bevestigen geregistreerde uren</msg>
+</message_catalog>
