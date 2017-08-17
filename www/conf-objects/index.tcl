@@ -26,7 +26,7 @@ set current_user_id $user_id
 set page_focus "im_header_form.keywords"
 set user_admin_p [im_is_user_site_wide_or_intranet_admin $current_user_id]
 set date_format "YYYY-MM-DD"
-set object_name [db_string object_name "select acs_object__name(:object_id)" -default [lang::message::lookup "" intranet-expenes.Unassigned "Unassigned"]]
+set object_name [db_string object_name "select acs_object__name(:object_id)" -default [lang::message::lookup "" intranet-core.Unassigned "Unassigned"]]
 set page_title [_ intranet-timesheet2-workflow.Timesheet_Approval]
 set context_bar [im_context_bar $page_title]
 
