@@ -2,10 +2,12 @@
 <message_catalog package_key="intranet-timesheet2-workflow" locale="de_DE" charset="ISO-8859-1">
 
   <msg key="Add_a_new_Conf">Neues Bestätigungsobject</msg>
+  <msg key="AdminHome">Admin Workflow</msg>
   <msg key="Conf_Project">Projekt</msg>
   <msg key="Conf_Status">Status</msg>
   <msg key="Conf_Type">Typ</msg>
   <msg key="Conf_User">Mitarbeiter</msg>
+  <msg key="Confs_Items">Conf Items</msg>
   <msg key="Date">Datum</msg>
   <msg key="Delete">Löschen</msg>
   <msg key="Hours">Stunden</msg>
