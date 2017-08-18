@@ -12,6 +12,7 @@
   <msg key="Delete">Löschen</msg>
   <msg key="Hours">Stunden</msg>
   <msg key="Included_Hours">Enthaltene Stunden</msg>
+  <msg key="Modify_Included_Hours">Enthaltene Stunden modifizieren</msg>
   <msg key="Note">Kommentar</msg>
   <msg key="Notification_Body_Notify_Applicant_TS_Approved">Ihre Stunden wurden bestätigt:</msg>
   <msg key="Notification_Body_Notify_Applicant_TS_Not_Approved">Ihre Stunden wurden nicht bestätigt</msg>

@@ -12,6 +12,7 @@
   <msg key="Delete">Delete</msg>
   <msg key="Hours">Hours</msg>
   <msg key="Included_Hours">Included Hours</msg>
+  <msg key="Modify_Included_Hours">Modify Included Hours</msg>
   <msg key="Note">Comment</msg>
   <msg key="Notification_Body_Notify_Applicant_TS_Approved">Your hours have been approved:</msg>
   <msg key="Notification_Body_Notify_Applicant_TS_Not_Approved">Your hours have not been approved:</msg>
