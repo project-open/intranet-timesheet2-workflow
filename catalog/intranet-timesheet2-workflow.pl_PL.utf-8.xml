@@ -3,14 +3,26 @@
 
   <msg key="Add_a_new_Conf">Dodaj nowy obiekt do zaakceptowania</msg>
   <msg key="AdminHome">Zarządzanie przepływem pracy</msg>
+  <msg key="Conf_Project">Projekt</msg>
   <msg key="Conf_Status">Status</msg>
+  <msg key="Conf_Type">Typ</msg>
   <msg key="Conf_User">Pracownik</msg>
   <msg key="Confs_Items">Elementy konfiguracji</msg>
+  <msg key="Date">Data</msg>
   <msg key="Delete">Skasuj</msg>
+  <msg key="Hours">Godziny</msg>
+  <msg key="Included_Hours">Godziny włączone</msg>
+  <msg key="Modify_Included_Hours">Modyfikuj włączone godziny</msg>
+  <msg key="Note">Komentarz</msg>
+  <msg key="Notification_Body_Notify_Applicant_TS_Approved">Twoje godziny zostały zaakceptowane:</msg>
+  <msg key="Notification_Body_Notify_Applicant_TS_Not_Approved">Twoje godziny nie zostały zaakceptowane:</msg>
+  <msg key="Notification_Subject_Notify_Applicant_TS_Approved">Akceptacja czasu pracy</msg>
+  <msg key="Notification_Subject_Notify_Applicant_TS_Not_Approved">Akceptacja czasu pracy</msg>
   <msg key="Period">Okres</msg>
   <msg key="Project">Projekt</msg>
   <msg key="Remove_checked_items">Usuń zaznaczone elementy</msg>
   <msg key="Timesheet_Approval">Akceptacja czasu pracy</msg>
+  <msg key="Timesheet_Conf_Object">Potwierdź zaraportowane godziny</msg>
   <msg key="Timesheet_Unsubmitted_Hours">Workflow czasu pracy - nie wpisane godziny</msg>
   <msg key="Timesheet_Workflow___Unconfirmed_Hours">Workflow czasu pracy - niepotwierdzone godziny</msg>
 </message_catalog>

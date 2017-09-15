@@ -2,7 +2,7 @@
 <message_catalog package_key="intranet-timesheet2-workflow" locale="de_DE" charset="ISO-8859-1">
 
   <msg key="Add_a_new_Conf">Neues Bestätigungsobject</msg>
-  <msg key="AdminHome">Admin Workflow</msg>
+  <msg key="AdminHome">Admin - Workflow</msg>
   <msg key="Conf_Project">Projekt</msg>
   <msg key="Conf_Status">Status</msg>
   <msg key="Conf_Type">Typ</msg>
@@ -14,7 +14,7 @@
   <msg key="Included_Hours">Enthaltene Stunden</msg>
   <msg key="Modify_Included_Hours">Enthaltene Stunden modifizieren</msg>
   <msg key="Note">Kommentar</msg>
-  <msg key="Notification_Body_Notify_Applicant_TS_Approved">Ihre Stunden wurden bestätigt:</msg>
+  <msg key="Notification_Body_Notify_Applicant_TS_Approved">Ihre Stunden wurden bestätigt</msg>
   <msg key="Notification_Body_Notify_Applicant_TS_Not_Approved">Ihre Stunden wurden nicht bestätigt</msg>
   <msg key="Notification_Subject_Notify_Applicant_TS_Approved">Zeiterfassung</msg>
   <msg key="Notification_Subject_Notify_Applicant_TS_Not_Approved">Zeiterfassung</msg>
@@ -24,5 +24,5 @@
   <msg key="Timesheet_Approval">Bestätigung Zeiterfassungsaufgaben</msg>
   <msg key="Timesheet_Conf_Object">Zeiterfassung bestätigen</msg>
   <msg key="Timesheet_Unsubmitted_Hours">Nicht eingereichte Stunden</msg>
-  <msg key="Timesheet_Workflow___Unconfirmed_Hours">Workflow Zeiterfassung &amp; unbestätigte Stunden</msg>
+  <msg key="Timesheet_Workflow___Unconfirmed_Hours">Workflow Zeiterfassung - Unbestätigte Stunden</msg>
 </message_catalog>
