@@ -132,7 +132,7 @@ db_multirow -extend {conf_chk return_url period} conf_lines confs_lines "
 		from	acs_rels r,
 			im_biz_object_members bom
 		where	r.rel_id = bom.rel_id and
-			bom.object_role_id in (1301,1302,1303) and
+			bom.object_role_id in (1301,1302,1303,1309) and
 			r.object_id_two = :current_user_id and 
 			r.object_id_one = p.project_id
 		) as write_p
