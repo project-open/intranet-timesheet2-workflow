@@ -14,16 +14,15 @@
         <owner url="mailto:frank.bergmann@project-open.com">Frank Bergmann</owner>
         <summary>Provides a &quot;confirmation object&quot; to allow for workflows confirming logged hours by PM.</summary>
         <vendor url="http://www.project-open.com/">]project-open[</vendor>
+	<license>]project-open[ Free License (FL)</license>
         <release-date>2016-11-15</release-date>
         <description format="text/plain">Provides a default confirmation workflow for timesheet hours.</description>
         <maturity>0</maturity>
-
         <provides url="intranet-timesheet2-workflow" version="4.0.5.0.7"/>
         <requires url="acs-workflow" version="3.2"/>
         <requires url="intranet-core" version="3.2"/>
         <requires url="intranet-timesheet2" version="3.2"/>
         <requires url="intranet-reporting" version="3.2"/>
-
         <callbacks>
         </callbacks>
         <parameters>
