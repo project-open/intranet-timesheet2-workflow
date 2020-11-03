@@ -80,10 +80,7 @@ template::list::create \
     -row_pretty_plural "[_ intranet-timesheet2-workflow.Confs_Items]" \
     -elements {
 	conf_chk {
-	    label "<input type=\"checkbox\" 
-                          name=\"_dummy\" 
-                          onclick=\"acs_ListCheckAll('confs_list', this.checked)\" 
-                          title=\"Check/uncheck all rows\">"
+	    label "<input id=list_check_all type=\"checkbox\" name=\"_dummy\" title=\"Check/uncheck all rows\">"
 	    display_template {
 		@conf_lines.conf_chk;noquote@
 	    }

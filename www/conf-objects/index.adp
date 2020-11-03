@@ -1,47 +1,18 @@
 <!-- packages/intranet-notes/www/index.adp -->
 <!-- @author Frank Bergmann (frank.bergmann@project-open.com) -->
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <master>
 <property name="doc(title)">@page_title;literal@</property>
 <property name="context">@context_bar;literal@</property>
 <property name="main_navbar_label">notes</property>
 
-<!--
-<table border="0" cellpadding="0" cellspacing="0">
-<tr>
-  <td> 
 
-	<form method=get action='index'>
-	<%= [export_vars -form {material_group_id material_start_idx material_order_by material_how_many material_view_name}] %>
+<script type="text/javascript" <if @::__csp_nonce@ not nil>nonce="@::__csp_nonce;literal@"</if>>
+window.addEventListener('load', function() { 
+     document.getElementById('list_check_all').addEventListener('click', function() { acs_ListCheckAll('confs_list', this.checked) });
+});
+</script>
 
-	</form>
-
-  </td>
-
-  <td>&nbsp;</td>
-  <td valign="top" width="30%">
-    <table border="0" cellpadding="0" cellspacing="0">
-    <tr>
-      <td class=rowtitle align="center">
-        #intranet-core.Admin_Links#
-      </td>
-    </tr>
-    <tr>
-      <td>
-	@admin_links;noquote@
-      </td>
-    </tr>
-    </table>
-  </td>
-</tr>
-</table>
-
-<br>
-
-<h2>@page_title;noquote@</h2>
-
--->
 <table width="100%">
 <tr><td>
 <listtemplate name="@list_id@"></listtemplate>

@@ -251,19 +251,6 @@ template::list::create \
 	}
     }
 
-set ttt {
-	conf_chk {
-	    label "<input type=\"checkbox\" 
-                          name=\"_dummy\" 
-                          onclick=\"acs_ListCheckAll('confs_list', this.checked)\" 
-                          title=\"Check/uncheck all rows\" disabled>"
-	    display_template {
-		@multirow.conf_chk;noquote@
-	    }
-	}
-}
-
-
 if {![info exists conf_id]} { ad_return_complaint 1 "Error: conf_id doesn't exist" }
 
 
