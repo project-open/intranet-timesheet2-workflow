@@ -96,10 +96,10 @@ if {$level_of_detail > 3} { set level_of_detail 3 }
 # ------------------------------------------------------------
 # Permissions - Unprivileged users can only see their own hours
 #
-set view_hours_all_p [expr {[im_permission $current_user_id view_hours_all] || [im_permission $current_user_id add_hours_all]}]
-set view_hours_direct_reports_p [im_permission $current_user_id add_hours_direct_reports]
+set view_hours_all_p [expr [im_permission $current_user_id view_hours_all] || [im_permission $current_user_id add_hours_all]]
+set view_hours_direct_reports_p [expr [im_permission $current_user_id view_hours_direct_reports] || [im_permission $current_user_id add_hours_direct_reports]]
 if {!$view_hours_all_p && !$view_hours_direct_reports_p} { set member_id $current_user_id }
-if {!$view_hours_all_p && $view_hours_direct_reports_p} { 
+if {!$view_hours_all_p && $view_hours_direct_reports_p} {
     # Only see direct reports
     set direct_reports [im_user_direct_reports_ids -user_id $current_user_id]
     if {"" != $member_id} {
