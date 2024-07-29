@@ -81,6 +81,7 @@ if {[info exists task]} {
     set context_bar [im_context_bar [list /intranet-rfc/projects/ "[lang::message::lookup "" intranet-timesheet2-workflow.Absences "Absences"]"] $page_title]
 }
 
+
 # ---------------------------------------------------------------
 # Defaults & Security
 # ---------------------------------------------------------------
@@ -88,6 +89,36 @@ if {[info exists task]} {
 set transition_key [db_string transition_key "select transition_key from wf_tasks where task_id = :task_id" -default ""]
 set current_user_id [auth::require_login]
 set object_name [db_string name "select acs_object__name(:absence_id)"]
+
+db_1row absence_info "
+	select	ua.owner_id as user_id_from_search,
+		ua.absence_type_id,
+		ua.duration_days
+	from	im_user_absences ua
+	where	absence_id = :absence_id
+"
+
+db_1row employee_info "
+	select	e.vacation_balance
+	from	im_employees e
+	where	employee_id = :user_id_from_search
+"
+
+set html ""
+
+# ---------------------------------------------------------------
+# Show a warning if the vacation balance - days requested is negative
+# ... only if it's a vacation
+# ---------------------------------------------------------------
+
+if {$absence_type_id in [im_sub_categories [im_user_absence_type_vacation]]} { 
+    set remaining_vacation_balance [expr ($vacation_balance+0) - ($duration_days+0)]
+    if {$remaining_vacation_balance < 0} {
+	set warning_default "Warning: Vacation balance exceeded by %remaining_vacation_balance% days"
+	set warning_l10n [lang::message::lookup "" intranet-timesheet2-workflow.Vacation_balance_exceeded_by $warning_default]
+	append html "<h2><font color=red>$warning_l10n</font></h2>"
+    }
+}
 
 # ---------------------------------------------------------------
 # Get the included hours
@@ -100,8 +131,34 @@ set params [list \
 		[list form_mode display] \
 		[list panel_p 1] \
 ]
-set html [ad_parse_template -params $params "/packages/intranet-timesheet2/www/absences/new"]
+append html [ad_parse_template -params $params "/packages/intranet-timesheet2/www/absences/new"]
 
 
+# ---------------------------------------------------------------
+# Show the vacation balance of the user for whom the current_user
+# needs to approve the absence. We could argue, that the current_
+# user should be a supervisor because of the workflow logic.
+# But maybe somebody else gets here?
+# ---------------------------------------------------------------
 
+# Get the user from the absence object
+set user_id_from_search [db_string owner "select owner_id from im_user_absences where absence_id = :absence_id" -default $current_user_id]
+
+set read_p 0
+if {$user_id_from_search == $current_user_id} { set read_p 1 }
+if {[im_permission $current_user_id view_hr]} { set read_p 1 }
+if {[im_permission $current_user_id view_absences_all]} { set read_p 1 }
+if {$read_p} {
+    set params [list \
+		    [list user_id_from_search $user_id_from_search] \
+		    [list return_url [im_url_with_query]] \
+    ]
+
+    set vacation_balance_html [ad_parse_template -params $params "/packages/intranet-timesheet2/www/absences/vacation-balance-component"]
+    append html "
+        [im_box_header "Vacation Balance"]
+        $vacation_balance_html
+        [im_box_footer]
+    "
+}
 
