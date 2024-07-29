@@ -114,7 +114,8 @@ set html ""
 if {$absence_type_id in [im_sub_categories [im_user_absence_type_vacation]]} { 
     set remaining_vacation_balance [expr ($vacation_balance+0) - ($duration_days+0)]
     if {$remaining_vacation_balance < 0} {
-	set warning_default "Warning: Vacation balance exceeded by %remaining_vacation_balance% days"
+	set exceeding_vacation_balance [expr -1 * $remaining_vacation_balance]
+	set warning_default "Warning: Vacation balance exceeded by %exceeding_vacation_balance% days"
 	set warning_l10n [lang::message::lookup "" intranet-timesheet2-workflow.Vacation_balance_exceeded_by $warning_default]
 	append html "<h2><font color=red>$warning_l10n</font></h2>"
     }
