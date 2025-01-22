@@ -93,13 +93,14 @@ set object_name [db_string name "select acs_object__name(:absence_id)"]
 db_1row absence_info "
 	select	ua.owner_id as user_id_from_search,
 		ua.absence_type_id,
-		ua.duration_days
+		0.0 as duration_days
 	from	im_user_absences ua
 	where	absence_id = :absence_id
 "
 
 db_1row employee_info "
-	select	e.vacation_balance
+	select	coalesce(e.vacation_balance, 0) as vacation_balance,
+		coalesce(e.vacation_days_per_year, 0) as vacation_days_per_year
 	from	im_employees e
 	where	employee_id = :user_id_from_search
 "
@@ -112,12 +113,50 @@ set html ""
 # ---------------------------------------------------------------
 
 if {$absence_type_id in [im_sub_categories [im_user_absence_type_vacation]]} { 
-    set remaining_vacation_balance [expr ($vacation_balance+0) - ($duration_days+0)]
+
+    # Calculate the remaining days in this year
+    set current_year [db_string current_year "select to_char(now(), 'YYYY')"]
+    set start_of_year "$current_year-01-01"
+    set end_of_year "$current_year-12-31"
+    set date_format "YYYY-MM-DD"
+    set vacation_sql "
+	select
+		a.absence_id,
+		a.absence_name,
+		a.start_date::date,
+		a.end_date::date,
+		a.duration_days,  -- Do not take these because they may cross years
+
+		-- count vacations days only between the intersection of year and absence
+		(select sum(unnest) / 100.0 
+		from	unnest(
+				im_resource_mgmt_work_days(
+					:user_id_from_search, 
+					greatest(a.start_date::date, :start_of_year::date), 
+					least(a.end_date::date, :end_of_year::date)
+				)
+		)) as vacation_days
+	from
+		im_user_absences a
+	where
+		a.owner_id = :user_id_from_search and
+		a.start_date <= :end_of_year and
+		a.end_date >= :start_of_year and 
+		a.absence_type_id in (select * from im_sub_categories([im_user_absence_type_vacation])) and 
+		a.absence_status_id not in ([im_user_absence_status_deleted], [im_user_absence_status_rejected])
+	order by
+		a.start_date
+    "
+    # ad_return_complaint 1 "[im_ad_hoc_query -format html $vacation_sql]<br><pre>$vacation_sql</pre>"
+
+    set vacation_days [db_string vacation_days "select sum(vacation_days) from ($vacation_sql) a"]
+
+    set remaining_vacation_balance [expr $vacation_balance + $vacation_days_per_year - $vacation_days]
     if {$remaining_vacation_balance < 0} {
 	set exceeding_vacation_balance [expr -1 * $remaining_vacation_balance]
 	set warning_default "Warning: Vacation balance exceeded by %exceeding_vacation_balance% days"
 	set warning_l10n [lang::message::lookup "" intranet-timesheet2-workflow.Vacation_balance_exceeded_by $warning_default]
-	append html "<h2><font color=red>$warning_l10n</font></h2>"
+	append html "<h2><font color=red>$warning_l10n</font></h2><p>(remaining = $remaining_vacation_balance = $vacation_balance (last year) + $vacation_days_per_year (vacation per year) - $vacation_days (taken, including this vacation))</p>"
     }
 }
 
