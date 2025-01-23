@@ -93,7 +93,9 @@ set object_name [db_string name "select acs_object__name(:absence_id)"]
 db_1row absence_info "
 	select	ua.owner_id as user_id_from_search,
 		ua.absence_type_id,
-		0.0 as duration_days
+		0.0 as duration_days,
+		ua.start_date as absence_start_date,
+		ua.end_date as absence_end_date
 	from	im_user_absences ua
 	where	absence_id = :absence_id
 "
@@ -148,7 +150,6 @@ if {$absence_type_id in [im_sub_categories [im_user_absence_type_vacation]]} {
 		a.start_date
     "
     # ad_return_complaint 1 "[im_ad_hoc_query -format html $vacation_sql]<br><pre>$vacation_sql</pre>"
-
     set vacation_days [db_string vacation_days "select sum(vacation_days) from ($vacation_sql) a"]
 
     set remaining_vacation_balance [expr $vacation_balance + $vacation_days_per_year - $vacation_days]
@@ -172,6 +173,31 @@ set params [list \
 		[list panel_p 1] \
 ]
 append html [ad_parse_template -params $params "/packages/intranet-timesheet2/www/absences/new"]
+
+# ---------------------------------------------------------------
+# List of intersecting absences
+# ---------------------------------------------------------------
+
+set absence_base_url "/intranet-timesheet2/absences/new?form_mode=display&absence_id="
+set intersecting_absences_sql "
+	select	'<a href=$absence_base_url'||ua.absence_id||' target=_>'||ua.absence_name||'</a>' as absence,
+		ua.start_date::date,
+		ua.end_date::date
+	from	im_user_absences ua
+	where	ua.owner_id = :user_id_from_search and
+		(ua.start_date <= :absence_end_date AND ua.end_date >= :absence_start_date) and
+		ua.absence_id != :absence_id -- exclude itself
+"
+set intersecting_absences [im_ad_hoc_query -format html -skip_if_no_rows 1 $intersecting_absences_sql]
+
+if {"" ne $intersecting_absences} {
+   append html "
+        [im_box_header [lang::message::lookup "" intranet-timesheet2-workflow.Intersecting_Absences "Intersecting Absences"]]
+	<font color=red>[lang::message::lookup "" intranet-timesheet2-workflow.Warning_Intersecting_Absences "Warning: Some absences of this user intersect with this absence."]</font><br>
+        $intersecting_absences
+        [im_box_footer]
+    "
+}
 
 
 # ---------------------------------------------------------------
